@@ -1,0 +1,130 @@
+#include "mbed.h"
+#include "mbed_events.h"
+#include <stdio.h>
+#include <string.h>
+DigitalIn sw1(PTD7);
+DigitalIn sw2(PTD0);
+AnalogIn LM35(PTC2);
+
+Serial pc(USBTX, USBRX); // tx, rx
+
+EventQueue queue;
+Timer t;
+
+float tempArray[35];
+int tempPointer = 0;
+float buffer[32];
+int bufferPointer =0;
+float current_Temp;
+float current_Time;
+
+void task4(void);
+void task2(void);
+void task3(void);
+void updateTime(int tasknum);
+void updateTemp(int tasknum);
+
+
+void task1(void){
+    //queue.call_every(100,updateTime,1);
+    queue.call_every(1000,task4);
+    queue.call_every(5000,task2);
+    queue.dispatch();
+}
+
+void task2(){
+    updateTime(2);
+    updateTemp(2);
+    task3();
+}
+
+
+void updateTime(int tasknum){
+    current_Time = t.read(); 
+    printf("Task: %d Time %f\n",tasknum,current_Time);
+}
+//
+void updateTemp(int tasknum){
+    current_Temp = LM35.read()*3.685503686*10;
+    printf("Task: %d Temperature : %f\n" ,tasknum, current_Temp);
+}
+ 
+void task3(){
+    int i,j = 0;
+    //read from terminal
+    //for(i=0; i<32; i++){
+      //  buffer[i] = tempArray[4+i];
+       // printf("%d\n" , buffer[i]);
+    //}
+    //sensor
+    for(i=0; i<32; i++){
+        buffer[i]=LM35.read()*3.685503686*10;
+        wait(0.02);
+    }
+    float sum=0;
+    for(j=0; j<32; j++){
+        sum+= buffer[j];
+    }
+    printf("Average : %f\n" , sum/32);
+    current_Time = t.read(); 
+    printf("Task3 Time : %f\n" ,current_Time); 
+}
+
+
+void task4(void){
+    printf("Task4\n");
+    if(sw1 == 0){
+        //printf("Task4 Time : %f\n" ,current_Time);
+        updateTime(4);
+        updateTemp(4);
+        } 
+    else if(sw2 == 0){
+        task3();
+    }
+}
+
+    
+
+void getTemp(){
+    char getTemp[105];
+    pc.gets(getTemp,105);
+    pc.printf("Entered Times are: %s\n",getTemp);
+    
+    // Returns first token 
+    char *token = strtok(getTemp, "-");
+    int i=0;
+    // Keep printing tokens while one of the
+    // delimiters present in str[].
+    while (token != NULL)
+    {
+        tempArray[i] = atoi(token);
+        i++;
+        printf("%s\n", token);
+        token = strtok(NULL, "-");
+    }
+    int j;
+    for( j=0; j<35 ;j++){
+         printf("%f\n", tempArray[j]);
+    }
+}
+
+void readSensor(){
+    int i;
+    for(i=0; i<35; i++){
+        tempArray[i]=LM35.read()*3.685503686*10;
+        wait(0.02);
+    }
+    int j=0;
+    for(j=0; j<35; j++){
+        printf("tempearute = %f\n", tempArray[j]);
+    }
+}
+
+int main() {
+   task4();
+   readSensor();
+   getTemp();
+   t.start();
+   task1();
+  queue.dispatch();  
+}
