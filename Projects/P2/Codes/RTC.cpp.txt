@@ -1,0 +1,104 @@
+#include "mbed.h"
+InterruptIn Sw3(PTD1);
+InterruptIn Sw4(PTD2);
+DigitalOut RLed(LED_RED);
+DigitalOut GLed(LED_GREEN);
+
+bool Flag3=false;
+bool Flag4=false;
+
+void Task1();
+void Task2();
+void Task3();
+void Task4();
+void ISR3();
+void ISR4();
+
+void init(){
+    Sw3.mode(PullUp);
+    Sw4.mode(PullUp);
+    Sw3.fall(&ISR3);
+    Sw4.fall(&ISR4);
+}
+
+void ISR3(){
+    Flag3 = true;
+}
+
+void ISR4(){
+    Flag4 = true;
+}
+    
+
+void schedulerRTC(int TNum){
+    init();
+    if(Flag4){
+       Task4();
+    }
+    if(Flag3){
+        Task3();
+    }
+    if(TNum == 2)
+        Task1();
+    if(TNum == 1)
+        Task2();
+}
+
+
+void Task1(){
+    GLed = 1;
+    for(int i=0; i<3; i++){
+        RLed = 1;
+        wait(0.5);
+        RLed = 0;
+        wait(0.5);
+    }
+    schedulerRTC(1);
+}
+
+
+void Task2(){
+    RLed = 1;
+    for(int i=0; i<3;i++){
+        GLed = 1;
+        wait(0.5);
+        GLed = 0;
+        wait(0.5);
+    }
+    schedulerRTC(2);
+}
+
+void Task3(){
+    RLed = 1;
+    GLed = 1;
+    for(int i=0; i<4; i++){
+        RLed = 1;
+        GLed = 0;
+        wait(0.5);
+        RLed = 0;
+        GLed = 1;
+        wait(0.5);
+    }    
+    Flag3 = false;
+    schedulerRTC(3);
+}
+
+void Task4(){
+    RLed = 1;
+    GLed = 1;
+    for(int i=0; i<4; i++){
+        RLed = 1;
+        GLed = 1;
+        wait(0.5);
+        RLed = 0;
+        GLed = 0;
+        wait(0.5);
+    }
+    Flag4 = false;
+    schedulerRTC(4);
+}
+
+
+int main() {
+    schedulerRTC(2);
+}

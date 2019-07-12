@@ -1,0 +1,109 @@
+#include "mbed.h"
+InterruptIn Sw3(PTA1);
+InterruptIn Sw4(PTD1);
+DigitalOut RLed(LED_RED);
+DigitalOut GLed(LED_GREEN);
+
+bool Flag3=false;
+bool Flag4=false;
+
+
+void task1();
+void task2();
+void task3();
+void task4();
+void ISR3();
+void ISR4();
+void schedulerPrm(int taskNum);
+
+void init(){
+    Sw3.mode(PullUp);
+    Sw4.mode(PullUp);
+    Sw3.fall(&ISR3);
+    Sw4.fall(&ISR4);
+    NVIC_SetPriority(PORTD_IRQn, 0);  
+    NVIC_SetPriority(PORTA_IRQn,1);
+} 
+
+void ISR3(){
+    Flag3 = true;
+    schedulerPrm(1);
+}
+
+void ISR4(){
+    Flag4 = true;
+    schedulerPrm(2);
+}
+    
+
+void schedulerPrm(int taskNum){
+    init();
+    if(Flag4){
+       task4();
+    }
+    if(Flag3){
+        task3();
+    }
+    if(taskNum == 2)
+        task1();
+    if(taskNum == 1)
+        task2();
+}
+
+void task1(){
+    GLed = 1;
+    for(int i=0; i<3;i++){
+        RLed = 1;
+        wait(0.5);
+        RLed = 0;
+        wait(0.5);
+    }
+    schedulerPrm(1);
+}
+
+
+void task2(){
+    RLed = 1;
+    for(int i=0; i<4; i++){
+        GLed = 1;
+        wait(0.5);
+        GLed = 0;
+        wait(0.5);
+    }
+    schedulerPrm(2);
+}
+
+void task3(){
+    RLed = 1;
+    GLed = 1;
+    for(int i=0; i<5; i++){
+        RLed = 1;
+        GLed = 0;
+        wait(0.5);
+        RLed = 0;
+        GLed = 1;
+        wait(0.5);
+    }    
+    Flag3 = false;
+    schedulerPrm(3);
+}
+
+void task4(){
+    RLed = 1;
+    GLed = 1;
+    for(int i=0; i<6; i++){
+        RLed = 1;
+        GLed = 1;
+        wait(0.5);
+        RLed = 0;
+        GLed = 0;
+        wait(0.5);
+    }
+    Flag4 = false;
+    schedulerPrm(4);
+}
+
+
+int main() {
+    schedulerPrm(2);
+} 
