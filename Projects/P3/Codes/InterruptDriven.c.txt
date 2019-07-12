@@ -75,17 +75,17 @@ void init_RGB_LEDs(void){
   PORTA-> PCR[4] |= 0x0100;
   PORTA-> PCR[5] |= 0x0100;
 	
-	PORTC-> PCR[8] |= 0x0100;
-	PORTC-> PCR[9] |= 0x0100;
-	PORTA-> PCR[13] |= 0x0100;
+  PORTC-> PCR[8] |= 0x0100;
+  PORTC-> PCR[9] |= 0x0100;
+  PORTA-> PCR[13] |= 0x0100;
 	
-	PORTC-> PCR[10] |= 0x0100;
-	PORTC-> PCR[11] |= 0x0100;
-	PORTC-> PCR[12] |= 0x0100;
+  PORTC-> PCR[10] |= 0x0100;
+  PORTC-> PCR[11] |= 0x0100;
+  PORTC-> PCR[12] |= 0x0100;
 	
-	PORTC-> PCR[7] |= 0x0100;
-	PORTC-> PCR[0] |= 0x0100;
-	PORTC-> PCR[3] |= 0x0100;
+  PORTC-> PCR[7] |= 0x0100;
+  PORTC-> PCR[0] |= 0x0100;
+  PORTC-> PCR[3] |= 0x0100;
 	
 	PORTC-> PCR[4] |= 0x0100;
 	PORTC-> PCR[5] |= 0x0100;
@@ -148,63 +148,63 @@ void PORTD_IRQHandler(void)
 {
   if(PORTD_ISFR & 0x01){
     // interrupt from north
-				PTC->PDOR |= (1<<13);
-				PTC->PDOR |= (0<<16);
-				PTC->PDOR |= (0<<17);
+	PTC->PDOR |= (1<<13);
+	PTC->PDOR |= (0<<16);
+    PTC->PDOR |= (0<<17);
 				
-				PTC->PDOR |= (0<<8);
-				PTC->PDOR |= (0<<9);
-				PTA->PDOR |= (1<<13);
+	PTC->PDOR |= (0<<8);
+	PTC->PDOR |= (0<<9);
+	PTA->PDOR |= (1<<13);
 				
-				PTC->PDOR |= (0<<10);
-				PTC->PDOR |= (0<<11);
-				PTC->PDOR |= (1<<12);
+	PTC->PDOR |= (0<<10);
+	PTC->PDOR |= (0<<11);
+	PTC->PDOR |= (1<<12);
 				
-				delay(5000);
-				setCSOutput();	
+	delay(5000);
+	setCSOutput();	
   }
 	
   if(PORTD_ISFR & 0x02){
     // interrupt from east
 		//north
-				PTC->PDOR |= (0<<13);
-				PTC->PDOR |= (0<<16);
-				PTC->PDOR |= (1<<17);
+			PTC->PDOR |= (0<<13);
+			PTC->PDOR |= (0<<16);
+			PTC->PDOR |= (1<<17);
 		//N/S Brt		
-				PTA->PDOR |= (0<<12);
-				PTA->PDOR |= (0<<4);
-				PTA->PDOR |= (1<<5);
+			PTA->PDOR |= (0<<12);
+			PTA->PDOR |= (0<<4);
+			PTA->PDOR |= (1<<5);
 		//E
-				PTC->PDOR |= (1<<8);
-				PTC->PDOR |= (0<<9);
-				PTA->PDOR |= (0<<13);
+			PTC->PDOR |= (1<<8);
+			PTC->PDOR |= (0<<9);
+			PTA->PDOR |= (0<<13);
 		//SW
-				PTC->PDOR |= (0<<4);
-				PTC->PDOR |= (0<<5);
-				PTC->PDOR |= (1<<6);
+			PTC->PDOR |= (0<<4);
+			PTC->PDOR |= (0<<5);
+			PTC->PDOR |= (1<<6);
 		
-				delay(5000);
-				setCSOutput();	
+	delay(5000);
+	setCSOutput();	
   }
 	
-	if(PORTD_ISFR & 0x04){
-		// interrupt from WN
-		//north
-				PTC->PDOR |= (1<<13);
-				PTC->PDOR |= (0<<16);
-				PTC->PDOR |= (0<<17);
-		//N/S Brt		
-				PTA->PDOR |= (0<<12);
-				PTA->PDOR |= (0<<4);
-				PTA->PDOR |= (1<<5);
-		//E
-				PTC->PDOR |= (0<<8);
-				PTC->PDOR |= (0<<9);
-				PTA->PDOR |= (1<<13);
-		//WN
-				PTC->PDOR |= (1<<7);
-				PTC->PDOR |= (0<<0);
-				PTC->PDOR |= (0<<3);		
+  if(PORTD_ISFR & 0x04){
+	// interrupt from WN
+	//north
+		PTC->PDOR |= (1<<13);
+		PTC->PDOR |= (0<<16);
+		PTC->PDOR |= (0<<17);
+	//N/S Brt		
+		PTA->PDOR |= (0<<12);
+		PTA->PDOR |= (0<<4);
+		PTA->PDOR |= (1<<5);
+	//E
+		PTC->PDOR |= (0<<8);
+		PTC->PDOR |= (0<<9);
+		PTA->PDOR |= (1<<13);
+	//WN
+		PTC->PDOR |= (1<<7);
+		PTC->PDOR |= (0<<0);
+		PTC->PDOR |= (0<<3);		
 	}
 	if(PORTD_ISFR & 0x08){
 		// interrupt from SW
@@ -317,15 +317,12 @@ void setCSOutput(void){
 			PTC->PCOR |= (1<<6);
 }
 int main(){
-  
   init_switch();
   init_RGB_LEDs();
-
   CS = go_N_car_go_BRT_NS; // start state
   while(1) {
-				setCSOutput();
-				delay(FSM[CS].Time);
-				CS = FSM[CS].Next;  
+  		setCSOutput();
+		delay(FSM[CS].Time);
+		CS = FSM[CS].Next;  
   }
-
 }
